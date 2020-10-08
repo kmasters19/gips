@@ -11,36 +11,36 @@ export class OwnerAddressEntity {
   @Column()
   accountNumber: string;
 
-  @Column()
+  @Column({ nullable: true })
   accountType: string;
 
-  @Column()
+  @Column({ nullable: true })
   appraisalType: string;
 
-  @Column()
+  @Column({ nullable: true })
   accountStatus: string;
 
-  @Column()
+  @Column({ nullable: true })
   parcelNumber: string;
 
-  @Column()
+  @Column({ nullable: true })
   address1: string;
 
-  @Column()
+  @Column({ nullable: true })
   address2: string;
 
-  @Column()
+  @Column({ nullable: true })
   city: string;
 
-  @Column()
+  @Column({ nullable: true })
   state: string;
 
-  @Column()
+  @Column({ nullable: true })
   zip: string;
 
-  @Column()
+  @Column({ nullable: true })
   name1: string;
 
-  @Column()
+  @Column({ nullable: true })
   name2: string;
 }

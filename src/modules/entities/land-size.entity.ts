@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity({ name: 'land_sizes'})
+@Entity({ name: 'land_sizes' })
 export class LandSizeEntity {
   @PrimaryGeneratedColumn('increment')
   id: number;
@@ -20,9 +20,9 @@ export class LandSizeEntity {
   @Column()
   parcelNumber: string;
 
-  @Column({ type: 'decimal' })
+  @Column({ type: 'decimal', nullable: true })
   grossAcres: number;
 
-  @Column({ type: 'decimal' })
+  @Column({ type: 'decimal', nullable: true })
   landGrossSqFt: number;
 }
