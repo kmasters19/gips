@@ -1,0 +1,42 @@
+version: '3.3'
+
+services:
+  nest:
+    env_file:
+      - .development.env
+    container_name: gips-server
+    restart: always
+    build: .
+    volumes:
+      - ./src:/app/src
+      - ./.development.env:/app/src/.env
+    ports:
+      - "3000:3000"
+  postgres:
+    image: postgres
+    restart: always
+    container_name: gips-db
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: gips
+    ports:
+      - "5432:5432"
+    volumes:
+      - .docker/db-data:/var/lib/postgresql/data
+    logging:
+      driver: none
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: gips-pgadmin
+    depends_on:
+      - postgres
+    ports:
+      - 5050:80
+    ## you can change pgAdmin default username/password with below environment variables
+    environment:
+      PGADMIN_DEFAULT_EMAIL: dev@dev.com
+      PGADMIN_DEFAULT_PASSWORD: dev
+    volumes:
+      - .docker/pgadmin:/var/lib/pgadmin:rw
+    logging:
+      driver: none
