@@ -6,6 +6,7 @@ import { ConfigService } from './modules/shared/config.service';
 import { LoaderModule } from './modules/loader/loader.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CsvModule } from 'nest-csv-parser';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { CsvModule } from 'nest-csv-parser';
     SearchModule,
     SharedModule,
     LoaderModule,
-    AuthModule
+    AuthModule,
+    UsersModule
   ]
 })
 export class AppModule {}
