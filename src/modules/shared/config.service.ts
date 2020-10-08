@@ -3,6 +3,8 @@ import { Logger } from '@nestjs/common';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import * as dotenv from 'dotenv';
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import { SnakeNamingStrategy } from '../../snake-naming.strategy';
 
 export class ConfigService {

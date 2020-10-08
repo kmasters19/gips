@@ -55,12 +55,13 @@ export class LoaderService {
       readable._read = () => {};
       readable.push(file.buffer);
       readable.push(null);
+
       const data: ParsedData<LoadImprovementDetailsDto> = await this.csvParser.parse(
         readable,
         LoadImprovementDetailsDto,
         null,
         1,
-        { separator: '\t' }
+        { separator: '\t', quote: '' }
       );
 
       await this.searchService.deleteClientImprovementDetails(clientId);
@@ -92,6 +93,8 @@ export class LoaderService {
 
       await this.searchService.deleteClientImprovements(clientId);
       for (const item of data.list) {
+        if (item.PROPERTYTYPE === undefined || item.PROPERTYTYPE === '')
+          continue;
         await this.searchService.createImprovement(clientId, item);
       }
 
@@ -141,7 +144,10 @@ export class LoaderService {
         LoadLegalsDto,
         null,
         1,
-        { separator: '\t' }
+        {
+          separator: '\t',
+          quote: ''
+        }
       );
 
       await this.searchService.deleteClientLegals(clientId);

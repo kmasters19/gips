@@ -10,6 +10,8 @@ import {
 } from 'typeorm-transactional-cls-hooked';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import { SharedModule } from './modules/shared/shared.module';
+import { ConfigService } from './modules/shared/config.service';
 
 async function bootstrap() {
   initializeTransactionalContext();
@@ -37,6 +39,9 @@ async function bootstrap() {
   const reflector = app.get(Reflector);
   app.useGlobalInterceptors(new ClassSerializerInterceptor(reflector));
 
-  await app.listen(3000);
+  const configService = app.select(SharedModule).get(ConfigService);
+  const port = configService.getNumber('PORT');
+
+  await app.listen(port);
 }
 void bootstrap();

@@ -20,42 +20,42 @@ export class ImprovementEntity {
   @Column()
   parcelNumber: string;
 
-  @Column()
+  @Column({ nullable: true })
   propertyType: string;
 
-  @Column({ type: 'float' })
+  @Column({ type: 'float', nullable: true })
   bathCount: number;
 
-  @Column({ type: 'integer' })
+  @Column({ type: 'integer', default: 0, nullable: true })
   bedroomCount: number;
 
-  @Column({ type: 'integer' })
+  @Column({ type: 'integer', default: 0, nullable: true })
   improvementNo: number;
 
-  @Column()
+  @Column({ nullable: true })
   builtAsDescription: string;
 
-  @Column()
+  @Column({ default: 0, nullable: true })
   builtAsSqFt: number;
 
-  @Column({ type: 'integer' })
+  @Column({ type: 'integer', default: 0, nullable: true })
   builtAsYearBuilt: number;
 
-  @Column()
+  @Column({ nullable: true })
   hvacType: string;
 
-  @Column()
+  @Column({ nullable: true })
   exterior: string;
 
-  @Column()
+  @Column({ nullable: true })
   interior: string;
 
-  @Column({ type: 'integer' })
+  @Column({ type: 'integer', default: 0, nullable: true })
   units: number;
 
-  @Column()
+  @Column({ nullable: true })
   detailType: string;
 
-  @Column()
+  @Column({ nullable: true })
   improvementNumber: string;
 }

@@ -311,7 +311,7 @@ export class SearchService {
     entity.accountStatus = item.ACCTSTATUSCODE;
     entity.appraisalType = item.APPRAISALTYPE;
     entity.parcelNumber = item.PARCELNO;
-    entity.units = item.DETAILUNITCOUNT;
+    entity.units = item.DETAILUNITCOUNT || 0;
     entity.detailDescription = item.IMPDETAILDESCRIPTION;
     entity.detailType = item.IMPDETAILTYPE;
     entity.improvementNumber = item.IMPNO;
@@ -326,18 +326,18 @@ export class SearchService {
     entity.accountStatus = item.ACCTSTATUSCODE;
     entity.appraisalType = item.APPRAISALTYPE;
     entity.parcelNumber = item.PARCELNO;
-    entity.improvementNo = item.IMPNO;
-    entity.improvementNumber = item.IMPNO.toString(10);
+    entity.improvementNo = item.IMPNO || 0;
+    entity.improvementNumber = '';
     entity.propertyType = item.PROPERTYTYPE;
-    entity.bathCount = item.BATHCOUNT;
-    entity.bedroomCount = item.BEDROOMCOUNT;
+    entity.bathCount = item.BATHCOUNT || 0;
+    entity.bedroomCount = item.BEDROOMCOUNT || 0;
     entity.builtAsDescription = item.BLTASDESCRIPTION;
     entity.builtAsSqFt = item.BLTASSF;
     entity.builtAsYearBuilt = item.BLTASYEARBUILT;
     entity.hvacType = item.HVACTYPE;
     entity.exterior = item.IMPEXTERIOR;
     entity.interior = item.IMPINTERIOR;
-    entity.units = item.DETAILUNITCOUNT;
+    entity.units = item.DETAILUNITCOUNT || 0;
     entity.detailType = item.IMPDETAILTYPE;
     entity = this.impRepo.create(entity);
     await this.impRepo.save(entity);
@@ -350,8 +350,8 @@ export class SearchService {
     entity.accountStatus = item.ACCTSTATUSCODE;
     entity.appraisalType = item.APPRAISALTYPE;
     entity.parcelNumber = item.PARCELNO;
-    entity.grossAcres = item.LANDGROSSACRES;
-    entity.landGrossSqFt = item.LANDGROSSSF;
+    entity.grossAcres = item.LANDGROSSACRES || 0;
+    entity.landGrossSqFt = item.LANDGROSSSF || 0;
     entity = this.landSizeRepo.create(entity);
     await this.landSizeRepo.save(entity);
   }
