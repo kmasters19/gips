@@ -20,7 +20,7 @@ export class AccountEntity {
   @Column()
   accountType: string;
 
-  @Column({ type: 'integer'})
+  @Column()
   taxDistrict: string;
 
   @Column()
@@ -41,16 +41,16 @@ export class AccountEntity {
   @Column()
   streetType: string;
 
-  @Column({ type: 'integer'})
+  @Column({ type: 'integer' })
   actualValue: number;
 
-  @Column({ type: 'integer'})
+  @Column({ type: 'integer' })
   assessedValue: number;
 
-  @Column({ type: 'integer'})
+  @Column({ type: 'integer' })
   millLevy: number;
 
-  @Column({ type: 'integer'})
+  @Column({ type: 'integer' })
   taxYear: number;
 
   @Column({ type: 'decimal' })
