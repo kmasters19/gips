@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AccountEntity } from '../entities/account.entity';
 import { FindConditions, Raw, Repository } from 'typeorm';
@@ -25,6 +25,8 @@ import { LoadValueDetailsDto } from '../loader/dtos/load-value-details.dto';
 
 @Injectable()
 export class SearchService {
+  private logger = new Logger(SearchService.name);
+
   constructor(
     @InjectRepository(AccountEntity)
     private accountRepo: Repository<AccountEntity>,
@@ -46,32 +48,28 @@ export class SearchService {
     const ownerAddressAccountNumbers: string[] = [];
     const accountAccountNumbers: string[] = [];
 
-    const ownerAddressConditions: FindConditions<OwnerAddressEntity> = {};
-    ownerAddressConditions.clientId = request.clientId;
+    const oaQuery = this.ownerAddrRepo.createQueryBuilder('o');
+    oaQuery.where(`o.clientId ILIKE '%${request.clientId}%'`);
 
     if (request.accountNumber) {
-      ownerAddressConditions.accountNumber = Raw(
-        x => `${x} ILIKE '%${request.accountNumber}%'`
-      );
+      oaQuery.andWhere(`o.accountNumber ILIKE '%${request.accountNumber}%'`);
     }
 
     if (request.pin) {
-      ownerAddressConditions.parcelNumber = Raw(
-        x => `${x} ILIKE '%${request.pin}%'`
-      );
+      oaQuery.andWhere(`o.parcelNumber ILIKE '%${request.pin}%'`);
     }
 
     if (request.ownerName) {
-      ownerAddressConditions.name1 = Raw(
-        x =>
-          `(${x} ILIKE '%${request.ownerName}%' OR name2 ILIKE ${request.ownerName})`
+      oaQuery.andWhere(
+        `(o.name1 ILIKE '%${request.ownerName}%' OR o.name2 ILIKE '%${request.ownerName}%')`
       );
     }
 
-    const ownerAddresses = await this.ownerAddrRepo.find({
-      where: ownerAddressConditions,
-      order: { accountNumber: 'ASC' }
-    });
+    const ownerAddresses = await oaQuery
+      .orderBy('o.accountNumber', 'ASC')
+      .getMany();
+
+    this.logger.log(ownerAddresses);
 
     for (const ownerAddress of ownerAddresses) {
       ownerAddressAccountNumbers.push(ownerAddress.accountNumber);
@@ -98,12 +96,16 @@ export class SearchService {
       ...ownerAddressAccountNumbers,
       ...accountAccountNumbers
     ]);
+    this.logger.log(accountAccountNumbers);
     for (const accountNumber of mergedAccountNumbers) {
       const ownerAddress = await this.ownerAddrRepo.findOne({ accountNumber });
       const account = await this.accountRepo.findOne({ accountNumber });
       const result = new SearchResultDto();
       result.accountNumber = accountNumber;
-      result.ownerName = ownerAddress.name1 + '<br />' + ownerAddress.name2;
+      result.ownerName = ownerAddress.name1;
+      if (ownerAddress.name2) {
+        result.ownerName = result.ownerName + '<br />' + ownerAddress.name2;
+      }
       if (account) {
         result.propertyAddress = `${account.streetNumber} ${account.preDir} ${account.streetName} ${account.streetType}<br />${account.propertyCity}`;
       }
@@ -145,9 +147,15 @@ export class SearchService {
 
       result.accountNumber = accountNumber;
       result.parcelNumber = account.parcelNumber || '';
-      result.ownerName = ownerAccount.name1 + '<br />' + ownerAccount.name2;
-      result.mailingAddress =
-        ownerAccount.address1 + '<br />' + ownerAccount.address2;
+      result.ownerName = ownerAccount.name1;
+      if (ownerAccount.name2) {
+        result.ownerName = result.ownerName + '<br />' + ownerAccount.name2;
+      }
+      result.mailingAddress = ownerAccount.address1;
+      if (ownerAccount.address2) {
+        result.mailingAddress =
+          result.mailingAddress + '<br />' + ownerAccount.address2;
+      }
       result.city = ownerAccount.city;
       result.state = ownerAccount.state;
       result.zip = ownerAccount.zip;
@@ -184,43 +192,46 @@ export class SearchService {
       }
       result.abstractItems = abstractDtos;
 
-      const improvements: ImprovementEntity[] = [];
+      const improvements: ImprovementSummaryDto[] = [];
       if (improvementsList.length > 0) {
         for (const id of improvementsList) {
-          if (!id) continue;
           const improvement = await this.impRepo.findOne({
             clientId,
             accountNumber,
             improvementNo: id
           });
 
-          improvements.push(improvement);
+          const improvementDto: ImprovementSummaryDto = {
+            accountNumber: improvement.accountNumber,
+            appraisalType: improvement.appraisalType,
+            accountStatus: improvement.accountStatus,
+            parcelNumber: improvement.parcelNumber || '',
+            propertyType: improvement.propertyType,
+            bathCount: improvement.bathCount || 0,
+            bedroomCount: improvement.bedroomCount || 0,
+            improvementNumber: improvement.improvementNo || 0,
+            hvac: improvement.hvacType,
+            exterior: improvement.exterior,
+            interior: improvement.interior,
+            units: improvement.units || 0,
+            detailType: improvement.detailType,
+            buildingId: improvement.improvementNo || 0,
+            yearBuilt: improvement.builtAsYearBuilt || 0,
+            description: improvement.builtAsDescription,
+            sqFt: improvement.builtAsSqFt || 0,
+            details: []
+          };
+          improvements.push(improvementDto);
         }
       }
 
-      const improvementDtos: ImprovementSummaryDto[] = [];
-      for (const improvement of improvements) {
-        const improvementDto: ImprovementSummaryDto = {
-          accountNumber: improvement.accountNumber,
-          appraisalType: improvement.appraisalType,
-          accountStatus: improvement.accountStatus,
-          parcelNumber: improvement.parcelNumber || '',
-          propertyType: improvement.propertyType,
-          bathCount: improvement.bathCount || 0,
-          bedroomCount: improvement.bedroomCount || 0,
-          improvementNumber: improvement.improvementNo || 0,
-          hvac: improvement.hvacType,
-          exterior: improvement.exterior,
-          interior: improvement.interior,
-          units: improvement.units || 0,
-          detailType: improvement.detailType,
-          buildingId: improvement.improvementNo || 0,
-          yearBuilt: improvement.builtAsYearBuilt || 0,
-          description: improvement.builtAsDescription,
-          sqFt: improvement.builtAsSqFt || 0,
-          details: []
-        };
+      result.improvements = improvements;
 
+      this.logger.log('Improvements before Detail DTO Builder:');
+      this.logger.log(result.improvements);
+
+      const improvementDtos: ImprovementSummaryDto[] = [];
+      for (const improvementDto of result.improvements) {
         const improvementDetailsQuery = await this.impDetRepo.find({
           where: {
             clientId,
@@ -244,9 +255,9 @@ export class SearchService {
         }
         improvementDto.details = detailDtos;
       }
-      result.improvements = improvementDtos;
     }
-
+    this.logger.log('Improvement DTOs after');
+    this.logger.log(result.improvements);
     return result;
   }
 
