@@ -9,17 +9,20 @@ import { LandSizeEntity } from '../entities/land-size.entity';
 import { LegalDescriptionEntity } from '../entities/legal-description.entity';
 import { OwnerAddressEntity } from '../entities/owner-address.entity';
 import { ValueDetailEntity } from '../entities/value-detail.entity';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
-      TypeOrmModule.forFeature([
+    TypeOrmModule.forFeature([
       AccountEntity,
       ImprovementEntity,
       ImprovementDetailEntity,
-      LandSizeEntity, LegalDescriptionEntity,
+      LandSizeEntity,
+      LegalDescriptionEntity,
       OwnerAddressEntity,
       ValueDetailEntity
-    ])
+    ]),
+    UsersModule
   ],
   controllers: [SearchController],
   providers: [SearchService],

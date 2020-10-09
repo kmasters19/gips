@@ -17,6 +17,15 @@ export class UsersService {
     return this.userRepo.findOne(id);
   }
 
+  async list() {
+    const users = await this.userRepo.find();
+    const result: string[] = [];
+    for (const user of users) {
+      result.push(user.username);
+    }
+    return result;
+  }
+
   async findByUsername(username: string) {
     return this.userRepo.findOne({ username });
   }
