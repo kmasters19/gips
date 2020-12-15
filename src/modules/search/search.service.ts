@@ -124,7 +124,7 @@ export class SearchService {
     if (ownerAccount) {
       const accounts = await this.accountRepo.find({ clientId, accountNumber });
       const account = accounts[0];
-      const abstracts = await this.valDetRepo.find({ clientId, accountNumber });
+      const abstracts = await this.valDetRepo.find({ where: { clientId, accountNumber }, order: { abstractCode: 'ASC' }});
       const legals = await this.legalDescRepo.findOne({
         clientId,
         accountNumber
