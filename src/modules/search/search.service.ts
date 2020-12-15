@@ -22,6 +22,7 @@ import { LoadLandSizesDto } from '../loader/dtos/load-land-sizes.dto';
 import { LoadLegalsDto } from '../loader/dtos/load-legals.dto';
 import { LoadOwnerAddressesDto } from '../loader/dtos/load-owner-addresses.dto';
 import { LoadValueDetailsDto } from '../loader/dtos/load-value-details.dto';
+import * as _ from 'lodash';
 
 @Injectable()
 export class SearchService {
@@ -136,8 +137,13 @@ export class SearchService {
       const improvementsList: number[] = [];
 
       const improvementQuery = await this.impRepo.find({
-        clientId,
-        accountNumber
+        where: {
+          clientId,
+          accountNumber
+        },
+        order: {
+          improvementNumber: 'ASC'
+        }
       });
       for (const improvement of improvementQuery) {
         if (improvementsList.includes(improvement.improvementNo) === false) {
@@ -253,9 +259,11 @@ export class SearchService {
           };
           detailDtos.push(detailDto);
         }
+
         improvementDto.details = detailDtos;
       }
     }
+    result.improvements = _.orderBy(result.improvements, ['buildingId'], ['ASC'])
     this.logger.log('Improvement DTOs after');
     this.logger.log(result.improvements);
     return result;
