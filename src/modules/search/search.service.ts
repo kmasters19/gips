@@ -81,8 +81,7 @@ export class SearchService {
         .createQueryBuilder('a')
         .where('a.clientId = :clientId', { clientId: request.clientId })
         .andWhere(
-          "a.streetNumber + ' ' + a.preDir + ' ' + a.streetName + ' ' + a.streetType + ' ' + a.propertyCity ILIKE :addr",
-          { addr: request.propertyAddress }
+          `a.streetNumber ||' '|| a.preDir ||' '|| a.streetName ||' '|| a.streetType ||' '|| a.propertyCity ILIKE '%${request.propertyAddress}%'`
         )
         .getMany();
 
