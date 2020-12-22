@@ -70,7 +70,7 @@ export class SearchService {
       .orderBy('o.accountNumber', 'ASC')
       .getMany();
 
-    this.logger.log(ownerAddresses);
+    // this.logger.log(ownerAddresses);
 
     for (const ownerAddress of ownerAddresses) {
       ownerAddressAccountNumbers.push(ownerAddress.accountNumber);
@@ -79,7 +79,7 @@ export class SearchService {
     if (request.propertyAddress) {
       const accounts = await this.accountRepo
         .createQueryBuilder('a')
-        .where('a.clientId = :clientId', { clientId: request.clientId })
+        .where(`a.clientId ilike '%${request.clientId}%'`)
         .andWhere(
           `a.streetNumber ||' '|| a.preDir ||' '|| a.streetName ||' '|| a.streetType ||' '|| a.propertyCity ILIKE '%${request.propertyAddress}%'`
         )
