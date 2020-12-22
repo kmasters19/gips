@@ -91,12 +91,18 @@ export class SearchService {
     }
 
     const results: SearchResultDto[] = [];
+    let mergedAccountNumbers: string[] = [];
 
-    const mergedAccountNumbers = this.uniqueArray([
-      ...ownerAddressAccountNumbers,
-      ...accountAccountNumbers
-    ]);
-    this.logger.log(accountAccountNumbers);
+    if (request.propertyAddress) {
+      mergedAccountNumbers = accountAccountNumbers;
+    }
+    if (request.accountNumber || request.ownerName || request.pin) {
+      mergedAccountNumbers = this.uniqueArray([
+        ...ownerAddressAccountNumbers,
+        ...accountAccountNumbers
+      ])
+    }
+    // this.logger.log(accountAccountNumbers);
     for (const accountNumber of mergedAccountNumbers) {
       const ownerAddress = await this.ownerAddrRepo.findOne({ accountNumber });
       const account = await this.accountRepo.findOne({ accountNumber });
