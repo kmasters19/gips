@@ -22,6 +22,7 @@ import { LoadLandSizesDto } from '../loader/dtos/load-land-sizes.dto';
 import { LoadLegalsDto } from '../loader/dtos/load-legals.dto';
 import { LoadOwnerAddressesDto } from '../loader/dtos/load-owner-addresses.dto';
 import { LoadValueDetailsDto } from '../loader/dtos/load-value-details.dto';
+import * as _ from 'lodash';
 
 @Injectable()
 export class SearchService {
@@ -69,7 +70,7 @@ export class SearchService {
       .orderBy('o.accountNumber', 'ASC')
       .getMany();
 
-    this.logger.log(ownerAddresses);
+    // this.logger.log(ownerAddresses);
 
     for (const ownerAddress of ownerAddresses) {
       ownerAddressAccountNumbers.push(ownerAddress.accountNumber);
@@ -78,10 +79,9 @@ export class SearchService {
     if (request.propertyAddress) {
       const accounts = await this.accountRepo
         .createQueryBuilder('a')
-        .where('a.clientId = :clientId', { clientId: request.clientId })
+        .where(`a.clientId ilike '%${request.clientId}%'`)
         .andWhere(
-          "a.streetNumber + ' ' + a.preDir + ' ' + a.streetName + ' ' + a.streetType + ' ' + a.propertyCity ILIKE :addr",
-          { addr: request.propertyAddress }
+          `a.streetNumber ||' '|| a.preDir ||' '|| a.streetName ||' '|| a.streetType ||' '|| a.propertyCity ILIKE '%${request.propertyAddress}%'`
         )
         .getMany();
 
@@ -91,12 +91,18 @@ export class SearchService {
     }
 
     const results: SearchResultDto[] = [];
+    let mergedAccountNumbers: string[] = [];
 
-    const mergedAccountNumbers = this.uniqueArray([
-      ...ownerAddressAccountNumbers,
-      ...accountAccountNumbers
-    ]);
-    this.logger.log(accountAccountNumbers);
+    if (request.propertyAddress) {
+      mergedAccountNumbers = accountAccountNumbers;
+    }
+    if (request.accountNumber || request.ownerName || request.pin) {
+      mergedAccountNumbers = this.uniqueArray([
+        ...ownerAddressAccountNumbers,
+        ...accountAccountNumbers
+      ])
+    }
+    // this.logger.log(accountAccountNumbers);
     for (const accountNumber of mergedAccountNumbers) {
       const ownerAddress = await this.ownerAddrRepo.findOne({ accountNumber });
       const account = await this.accountRepo.findOne({ accountNumber });
@@ -124,7 +130,7 @@ export class SearchService {
     if (ownerAccount) {
       const accounts = await this.accountRepo.find({ clientId, accountNumber });
       const account = accounts[0];
-      const abstracts = await this.valDetRepo.find({ clientId, accountNumber });
+      const abstracts = await this.valDetRepo.find({ where: { clientId, accountNumber }, order: { abstractCode: 'ASC' }});
       const legals = await this.legalDescRepo.findOne({
         clientId,
         accountNumber
@@ -136,8 +142,13 @@ export class SearchService {
       const improvementsList: number[] = [];
 
       const improvementQuery = await this.impRepo.find({
-        clientId,
-        accountNumber
+        where: {
+          clientId,
+          accountNumber
+        },
+        order: {
+          improvementNumber: 'ASC'
+        }
       });
       for (const improvement of improvementQuery) {
         if (improvementsList.includes(improvement.improvementNo) === false) {
@@ -253,9 +264,11 @@ export class SearchService {
           };
           detailDtos.push(detailDto);
         }
+
         improvementDto.details = detailDtos;
       }
     }
+    result.improvements = _.orderBy(result.improvements, ['buildingId'], ['ASC'])
     this.logger.log('Improvement DTOs after');
     this.logger.log(result.improvements);
     return result;
