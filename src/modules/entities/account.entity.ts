@@ -47,7 +47,7 @@ export class AccountEntity {
   @Column({ type: 'integer' })
   assessedValue: number;
 
-  @Column({ type: 'decimal' })
+  @Column({ type: 'decimal', nullable: true })
   millLevy: number;
 
   @Column({ type: 'integer' })
