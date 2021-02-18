@@ -26,7 +26,7 @@ import * as _ from 'lodash';
 
 @Injectable()
 export class SearchService {
-  private logger = new Logger(SearchService.name);
+  // private logger = new Logger(SearchService.name);
 
   constructor(
     @InjectRepository(AccountEntity)
@@ -46,11 +46,12 @@ export class SearchService {
   ) {}
 
   async search(request: SearchRequestDto) {
+    const clientId = request.clientId.toLowerCase()
     const ownerAddressAccountNumbers: string[] = [];
     const accountAccountNumbers: string[] = [];
 
     const oaQuery = this.ownerAddrRepo.createQueryBuilder('o');
-    oaQuery.where(`o.clientId ILIKE '%${request.clientId}%'`);
+    oaQuery.where(`o.clientId ILIKE '%${clientId}%'`);
 
     if (request.accountNumber) {
       oaQuery.andWhere(`o.accountNumber ILIKE '%${request.accountNumber}%'`);
@@ -70,6 +71,7 @@ export class SearchService {
       .orderBy('o.accountNumber', 'ASC')
       .getMany();
 
+    // this.logger.log('Owner Addresses:')
     // this.logger.log(ownerAddresses);
 
     for (const ownerAddress of ownerAddresses) {
@@ -84,6 +86,9 @@ export class SearchService {
           `a.streetNumber ||' '|| a.preDir ||' '|| a.streetName ||' '|| a.streetType ||' '|| a.propertyCity ILIKE '%${request.propertyAddress}%'`
         )
         .getMany();
+
+      // this.logger.log('Accounts:')
+      // this.logger.log(accounts);
 
       for (const account of accounts) {
         accountAccountNumbers.push(account.accountNumber);
@@ -102,10 +107,10 @@ export class SearchService {
         ...accountAccountNumbers
       ])
     }
-    // this.logger.log(accountAccountNumbers);
+    // this.logger.log(mergedAccountNumbers);
     for (const accountNumber of mergedAccountNumbers) {
-      const ownerAddress = await this.ownerAddrRepo.findOne({ accountNumber });
-      const account = await this.accountRepo.findOne({ accountNumber });
+      const ownerAddress = await this.ownerAddrRepo.findOne({ clientId, accountNumber });
+      const account = await this.accountRepo.findOne({ clientId, accountNumber });
       const result = new SearchResultDto();
       result.accountNumber = accountNumber;
       result.ownerName = ownerAddress.name1;
@@ -122,6 +127,7 @@ export class SearchService {
   }
 
   async detail(accountNumber: string, clientId: string) {
+    clientId = clientId.toLowerCase()
     const ownerAccount = await this.ownerAddrRepo.findOne({
       accountNumber,
       clientId
@@ -238,8 +244,8 @@ export class SearchService {
 
       result.improvements = improvements;
 
-      this.logger.log('Improvements before Detail DTO Builder:');
-      this.logger.log(result.improvements);
+      // this.logger.log('Improvements before Detail DTO Builder:');
+      // this.logger.log(result.improvements);
 
       const improvementDtos: ImprovementSummaryDto[] = [];
       for (const improvementDto of result.improvements) {
@@ -269,8 +275,8 @@ export class SearchService {
       }
     }
     result.improvements = _.orderBy(result.improvements, ['buildingId'], ['ASC'])
-    this.logger.log('Improvement DTOs after');
-    this.logger.log(result.improvements);
+    // this.logger.log('Improvement DTOs after');
+    // this.logger.log(result.improvements);
     return result;
   }
 
