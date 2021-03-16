@@ -196,7 +196,7 @@ export class SearchService {
         accountDto.landGrossSqFt = landSizes.landGrossSqFt;
         accountDtos.push(accountDto);
       }
-      result.accounts = accountDtos;
+      result.accounts = _.uniqWith(accountDtos, _.isEqual);
 
       const abstractDtos: AbstractItemDto[] = [];
       for (const abstract of abstracts) {
@@ -242,7 +242,7 @@ export class SearchService {
         }
       }
 
-      result.improvements = improvements;
+      result.improvements = _.uniqWith(improvements, _.isEqual);
 
       // this.logger.log('Improvements before Detail DTO Builder:');
       // this.logger.log(result.improvements);
@@ -271,7 +271,7 @@ export class SearchService {
           detailDtos.push(detailDto);
         }
 
-        improvementDto.details = detailDtos;
+        improvementDto.details = _.uniqWith(detailDtos, _.isEqual);
       }
     }
     result.improvements = _.orderBy(result.improvements, ['buildingId'], ['ASC'])
