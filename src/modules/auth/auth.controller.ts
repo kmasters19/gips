@@ -1,7 +1,7 @@
 import {
   Body,
   Controller,
-  Get,
+  Get, Logger,
   Post,
   UseGuards,
   UseInterceptors
@@ -17,6 +17,8 @@ import { UsersService } from '../users/users.service';
 
 @Controller('auth')
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
+
   constructor(
     private authService: AuthService,
     private userService: UsersService
@@ -29,9 +31,14 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() payload: LoginDto) {
-    const user = await this.authService.validateUser(payload);
-    const token = await this.authService.createToken(user);
-    return new LoginPayloadDto(user, token);
+    try {
+      const user = await this.authService.validateUser(payload);
+      const token = await this.authService.createToken(user);
+      return new LoginPayloadDto(user, token);
+    } catch (e) {
+      this.logger.error('Auth error');
+      this.logger.error(e);
+    }
   }
 
   @Get('me')
