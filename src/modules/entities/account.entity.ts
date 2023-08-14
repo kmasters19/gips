@@ -41,18 +41,18 @@ export class AccountEntity {
   @Column()
   streetType: string;
 
-  @Column({ type: 'integer' })
+  @Column({ type: 'integer', nullable: true })
   actualValue: number;
 
-  @Column({ type: 'integer' })
+  @Column({ type: 'integer', nullable: true })
   assessedValue: number;
 
   @Column({ type: 'decimal', nullable: true })
   millLevy: number;
 
-  @Column({ type: 'integer' })
+  @Column({ type: 'integer', nullable: true })
   taxYear: number;
 
-  @Column({ type: 'decimal' })
+  @Column({ type: 'decimal', nullable: true })
   totalTax: number;
 }
