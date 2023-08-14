@@ -311,22 +311,22 @@ export class SearchService {
   async createAccount(clientId: string, item: LoadAccountDto) {
     let entity = new AccountEntity();
     entity.clientId = clientId;
-    entity.accountNumber = item.ACCOUNTNO;
-    entity.accountStatus = item.ACCTSTATUSCODE;
-    entity.parcelNumber = item.PARCELNO;
-    entity.accountType = item.ACCTTYPE;
-    entity.appraisalType = item.APPRAISALTYPE;
-    entity.taxDistrict = item.DEFAULTTAXDISTRICT;
-    entity.preDir = item.PREDIRECTION;
-    entity.propertyCity = item.PROPERTYCITY;
-    entity.streetName = item.STREETNAME;
-    entity.streetNumber = item.STREETNO;
-    entity.streetType = item.STREETTYPE;
-    entity.actualValue = item.ACTUALVALUE;
-    entity.assessedValue = item.ASSESSEDVALUE;
-    entity.millLevy = item.MILLLEVY;
-    entity.taxYear = item.TAXYEAR;
-    entity.totalTax = item.TOTALTAXDOLLARS;
+    entity.accountNumber = item.ACCOUNTNO ?? '';
+    entity.accountStatus = item.ACCTSTATUSCODE ?? '';
+    entity.parcelNumber = item.PARCELNO ?? '';
+    entity.accountType = item.ACCTTYPE ?? '';
+    entity.appraisalType = item.APPRAISALTYPE ?? '';
+    entity.taxDistrict = item.DEFAULTTAXDISTRICT ?? '';
+    entity.preDir = item.PREDIRECTION ?? '';
+    entity.propertyCity = item.PROPERTYCITY ?? '';
+    entity.streetName = item.STREETNAME ?? '';
+    entity.streetNumber = item.STREETNO ?? '';
+    entity.streetType = item.STREETTYPE ?? '';
+    entity.actualValue = item.ACTUALVALUE ?? 0;
+    entity.assessedValue = item.ASSESSEDVALUE ?? 0;
+    entity.millLevy = item.MILLLEVY ?? 0;
+    entity.taxYear = item.TAXYEAR ?? 0;
+    entity.totalTax = item.TOTALTAXDOLLARS ?? 0;
     entity = this.accountRepo.create(entity);
     await this.accountRepo.save(entity);
   }
