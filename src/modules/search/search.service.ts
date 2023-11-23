@@ -120,7 +120,9 @@ export class SearchService {
       if (account) {
         result.propertyAddress = `${account.streetNumber} ${account.preDir} ${account.streetName} ${account.streetType}<br />${account.propertyCity}`;
       }
-      results.push(result);
+      if (!results.find((x) => x.accountNumber === result.accountNumber)) {
+        results.push(result);
+      }
     }
 
     return results;
